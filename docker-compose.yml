@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+  neo-baam-promissory-api:
+    image: repo.sadad.co.ir/repository/baam-docker-registry/neo-baam-promissory-api:BUILD_NUMBER
+    hostname: promissory-api-srv
+    container_name: ${CONTAINER_NAME}
+    networks:
+      neo-baam:
+        aliases:
+          - promissory-api-srv
+    ports:
+      - 8525:8525
+      - 1525:1525
+    tty: true
+    extra_hosts:
+      - "cache:192.168.53.58"
+      - "cache1:192.168.53.58"
+      - "config-srv:192.168.53.73"
+    volumes:
+      - /var/log/promissory-api:/var/log/promissory-api
+      - /opt/security/promissory-api/:/opt/security/promissory-api
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - JVM_OPTS=-Dfile.encoding=UTF8
+    build: .
+    working_dir: /
+    command: [ "/usr/bin/java", "-jar", "/promissory-api-1.0.0-SNAPSHOT.jar" ]
+networks:
+  neo-baam:
+    driver: bridge
