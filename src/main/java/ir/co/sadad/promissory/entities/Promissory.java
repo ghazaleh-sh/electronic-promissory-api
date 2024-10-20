@@ -20,7 +20,7 @@ public class Promissory extends AbstractEntity {
     private String promissoryUid;
     @Column(name = "PROMISSORY_NAME")
     private String promissoryName;
-    @Column(name = "TRANSFERABLE")
+    @Column(name = "TRANSFERABLE", columnDefinition = "SMALLINT")
     private Boolean transferable;
     @Column(name = "DESCRIPTION")
     private String description;
