@@ -24,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static ir.co.sadad.promissory.commons.Constants.GUARANTEE_CANCEL_DEMAND_TYPE;
 import static ir.co.sadad.promissory.commons.Constants.TERMINAL_ID;
 
@@ -87,13 +85,18 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
 
     @Override
     public IssueAndGuaranteeRegisterResDto guaranteeRegister(String authToken, String ssn, AddGuaranteeRegisterReqDto registerReqDto) {
-//TODO: why client does not give me pre-request Id?
-        PromissoryRequest savedRequestForCurrentUser = requestDaoService.getRequestByPromissoryUid(registerReqDto.getPromissoryId(), RequestType.GUARANTEE)
-                .stream()
-                .filter(request -> RequestStatus.WAITING_FOR_GUARANTOR_APPROVED.equals(request.getRequestStatus()))
-                .filter(req -> ssn.equals(stakeholderDaoService.getStakeholderByRole(req, StakeholderRole.GUARANTOR).getNationalNumber()))
-                .findFirst()
-                .orElseThrow(() -> new PromissoryException("GUARANTOR_NOT_FOUND", HttpStatus.BAD_REQUEST));
+//        PromissoryRequest savedRequestForCurrentUser = requestDaoService.getRequestByPromissoryUid(registerReqDto.getPromissoryId(), RequestType.GUARANTEE)
+//                .stream()
+//                .filter(request -> RequestStatus.WAITING_FOR_GUARANTOR_APPROVED.equals(request.getRequestStatus()))
+//                .filter(req -> ssn.equals(stakeholderDaoService.getStakeholderByRole(req, StakeholderRole.GUARANTOR).getNationalNumber()))
+//                .findFirst()
+//                .orElseThrow(() -> new PromissoryException("GUARANTOR_NOT_FOUND", HttpStatus.BAD_REQUEST));
+
+        PromissoryRequest savedGuarantorRequest = requestDaoService.getRequestBy(registerReqDto.getUid());
+
+        // to double-check if current user is the same as the target guarantor on given uid to register
+        if (!ssn.equals(stakeholderDaoService.getStakeholderByRole(savedGuarantorRequest, StakeholderRole.GUARANTOR).getNationalNumber()))
+            throw new PromissoryException("GUARANTOR_NOT_FOUND", HttpStatus.BAD_REQUEST);
 
         PromissoryClientResponseDto<GuaranteeRegisterResDto> registerRes = null;
         String requestId = null;
@@ -105,13 +108,13 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
 
             requestId = registerRes.getInfo().getRequestId();
             logDaoService.saveLogs("", "",
-                    savedRequestForCurrentUser.getRequestUid(), DataConverter.convertResponseToJson(registerRes), "guaranteeRegister", "SUCCESSFUL");
+                    savedGuarantorRequest.getRequestUid(), DataConverter.convertResponseToJson(registerRes), "guaranteeRegister", "SUCCESSFUL");
 
-            stakeholderDaoService.updateStakeholderForGuarantor(registerReq, savedRequestForCurrentUser);
+            stakeholderDaoService.updateStakeholderForGuarantor(registerReq, savedGuarantorRequest);
 
             IssueAndGuaranteeRegisterResDto res = certificationService.certificationFlowToRegister(authToken, requestId, registerRes.getInfo().getUnSignedPdf());
 
-            requestDaoService.updatePromissoryRequestStatusAndIdForGuaranteeRegister(savedRequestForCurrentUser,
+            requestDaoService.updatePromissoryRequestStatusAndUidForGuaranteeRegister(savedGuarantorRequest,
                     RequestStatus.REGISTERED_WAITING_FOR_GUARANTOR_APPROVED,
                     requestId);
 
@@ -119,7 +122,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
 
         } catch (Exception e) {
             logDaoService.saveLogs(e.getClass().getName(), e.getMessage(),
-                    savedRequestForCurrentUser != null ? savedRequestForCurrentUser.getRequestUid() : null,
+                    savedGuarantorRequest != null ? savedGuarantorRequest.getRequestUid() : null,
                     e instanceof PromissoryException ? ((PromissoryException) e).getJsonError() : null,
                     "guaranteeRegister", "EXCEPTION");
 

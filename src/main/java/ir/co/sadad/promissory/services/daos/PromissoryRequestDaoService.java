@@ -53,7 +53,7 @@ public class PromissoryRequestDaoService {
         promissoryRequestRepository.saveAndFlush(savedPromissoryReq);
     }
 
-    public void updatePromissoryRequestStatusAndIdForGuaranteeRegister(PromissoryRequest savedPromissoryReq, RequestStatus requestStatus, String newRequestId) {
+    public void updatePromissoryRequestStatusAndUidForGuaranteeRegister(PromissoryRequest savedPromissoryReq, RequestStatus requestStatus, String newRequestId) {
         savedPromissoryReq.setRequestStatus(requestStatus);
         savedPromissoryReq.setRequestUid(newRequestId);
         promissoryRequestRepository.saveAndFlush(savedPromissoryReq);
