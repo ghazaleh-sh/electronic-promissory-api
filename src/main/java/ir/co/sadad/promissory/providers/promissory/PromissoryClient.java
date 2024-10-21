@@ -82,4 +82,10 @@ public interface PromissoryClient {
             @RequestHeader("Authorization") String bearerToken,
             @RequestHeader("terminalId") int terminalId,
             @RequestBody GuaranteeApproveReqDto approveReqDto);
+
+    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.guarantee-list}")
+    PromissoryClientResponseDto<GuaranteeListResDto> guaranteeList(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestHeader("terminalId") int terminalId,
+            @RequestBody GuaranteeListReqDto listReqDto);
 }

@@ -22,9 +22,9 @@ public class CartableResDto {
     private String firstPersonName;
     private String secondPersonName;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private CancelType cancelType;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String localizedCancelType;
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+//    private CancelType cancelType;
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+//    private String localizedCancelType;
 
 }

@@ -45,7 +45,7 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
 
     @SneakyThrows
     @Override
-    public List<CartableResDto> cartable(String ssn, int page_number, int page_size, String request_status) {
+    public List<CartableResDto> cartable(String ssn, int page_number, int page_size) {
 
         List<DemandListResDto.Item> demandListRes = null;
         try {
@@ -71,10 +71,10 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
             throw e;
         }
 
-        if (request_status != null)
-            demandListRes = demandListRes.stream()
-                    .filter(item -> item.getState().equals(request_status))
-                    .toList();
+//        if (request_status != null)
+//            demandListRes = demandListRes.stream()
+//                    .filter(item -> item.getState().equals(request_status))
+//                    .toList();
 
         int totalItems = demandListRes.size();
         int startIndex = (page_number - 1) * page_size;
@@ -89,20 +89,19 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
             throw new PromissoryException("INVALID_INDEX_RANGE", HttpStatus.BAD_REQUEST);
         }
 
-        List<CartableResDto> res = infoMapper.toCartableResDto(demandListRes);
-        res.forEach(cartableResDto -> {
-            if (cartableResDto.getActions().stream().anyMatch(action -> action.equals(RequestAction.CANCEL))) {
-                if (ssn.equals(cartableResDto.getRequesterValue())) {
-                    cartableResDto.setCancelType(CancelType.DELETE);
-                    cartableResDto.setLocalizedCancelType(CancelType.DELETE.getDescription());
-                } else {
-                    cartableResDto.setCancelType(CancelType.REJECT);
-                    cartableResDto.setLocalizedCancelType(CancelType.REJECT.getDescription());
-                }
-            }
-        });
+        //        res.forEach(cartableResDto -> {
+//            if (cartableResDto.getActions().stream().anyMatch(action -> action.equals(RequestAction.CANCEL))) {
+//                if (ssn.equals(cartableResDto.getRequesterValue())) {
+//                    cartableResDto.setCancelType(CancelType.DELETE);
+//                    cartableResDto.setLocalizedCancelType(CancelType.DELETE.getDescription());
+//                } else {
+//                    cartableResDto.setCancelType(CancelType.REJECT);
+//                    cartableResDto.setLocalizedCancelType(CancelType.REJECT.getDescription());
+//                }
+//            }
+//        });
 
-        return res;
+        return infoMapper.toCartableResDto(demandListRes);
     }
 
     @SneakyThrows
@@ -160,9 +159,9 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
     public List<MyPromissoryResDto> myPromissory(String ssn, int page_number, int page_size, StakeholderRole role) {
         int MAX_PAGE_SIZE = 100; // to get all list from the client and then filter based on params
         int DEFAULT_PAGE_NUMBER = 1;
-        List<MyPromissoryClientResDto.MyPromissoryList> clientRes = null;
+        List<MyPromissoryClientResDto.MyPromissoryList> clientResList = null;
         try {
-            clientRes = promissoryClient.myPromissory(promissoryTokenService.getToken(),
+            clientResList = promissoryClient.myPromissory(promissoryTokenService.getToken(),
                             TERMINAL_ID,
                             MyPromissoryClientReqDto.builder()
                                     .nationalNumber(ssn)
@@ -182,7 +181,7 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
 
         //TODO: filter based on user's params, going to be added
 
-        int totalItems = clientRes.size();
+        int totalItems = clientResList.size();
         int startIndex = (page_number - 1) * page_size;
         int endIndex = Math.min(startIndex + page_size, totalItems);
 
@@ -190,15 +189,14 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
         endIndex = Math.min(endIndex, totalItems);
 
         try {
-            clientRes = clientRes.subList(startIndex, endIndex);
+            clientResList = clientResList.subList(startIndex, endIndex);
         } catch (Exception e) {
             throw new PromissoryException("INVALID_INDEX_RANGE", HttpStatus.BAD_REQUEST);
         }
 
 
-        List<MyPromissoryResDto> res = infoMapper.toMyPromissoryListResDto(clientRes);
+        List<MyPromissoryResDto> res = infoMapper.toMyPromissoryListResDto(clientResList);
         res.forEach(eachPromissory -> {
-            String state = eachPromissory.getState();
 
             Promissory savedPr = promissoryDaoService.getOptionalPromissoryBy(eachPromissory.getPromissoryId());
             if (savedPr != null) {
@@ -217,26 +215,28 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
                     eachPromissory.setRequestStatus(RequestStatus.WAITING_FOR_GUARANTORS_APPROVED);
             }
 
-            // Default action
-            List<RequestAction> actions = List.of(RequestAction.DETAIL_VIEW);
-            List<String> localizedActions = List.of(RequestAction.DETAIL_VIEW.getDescription());
-
-            if (PromissoryState.F.getState().equals(state) || PromissoryState.G.getState().equals(state)) {
-                if (StakeholderRole.ISSUER.equals(eachPromissory.getRole())) {
-                    actions = List.of(RequestAction.ADD_GUARANTEE, RequestAction.DETAIL_VIEW);
-                    localizedActions = getLocalizedActions(actions);
-
-                } else if (StakeholderRole.CURRENT_OWNER.equals(eachPromissory.getRole())) {
-                    if (eachPromissory.getDueDate() != null) {
-                        actions = List.of(RequestAction.ENDORSEMENT, RequestAction.DETAIL_VIEW);
-                    } else {
-                        actions = List.of(RequestAction.ENDORSEMENT, RequestAction.SETTLEMENT, RequestAction.DETAIL_VIEW);
-                    }
-                    localizedActions = getLocalizedActions(actions);
-                }
-            }
-            eachPromissory.setAction(actions);
-            eachPromissory.setLocalizedAction(localizedActions);
+//            String state = eachPromissory.getState();
+//
+//            // Default action
+//            List<RequestAction> actions = List.of(RequestAction.DETAIL_VIEW);
+//            List<String> localizedActions = List.of(RequestAction.DETAIL_VIEW.getDescription());
+//
+//            if (PromissoryState.F.getState().equals(state) || PromissoryState.G.getState().equals(state)) {
+//                if (StakeholderRole.ISSUER.equals(eachPromissory.getRole())) {
+//                    actions = List.of(RequestAction.ADD_GUARANTEE, RequestAction.DETAIL_VIEW);
+//                    localizedActions = getLocalizedActions(actions);
+//
+//                } else if (StakeholderRole.CURRENT_OWNER.equals(eachPromissory.getRole())) {
+//                    if (eachPromissory.getDueDate() != null) {
+//                        actions = List.of(RequestAction.ENDORSEMENT, RequestAction.DETAIL_VIEW);
+//                    } else {
+//                        actions = List.of(RequestAction.ENDORSEMENT, RequestAction.SETTLEMENT, RequestAction.DETAIL_VIEW);
+//                    }
+//                    localizedActions = getLocalizedActions(actions);
+//                }
+//            }
+//            eachPromissory.setAction(actions);
+//            eachPromissory.setLocalizedAction(localizedActions);
         });
 
         return res;

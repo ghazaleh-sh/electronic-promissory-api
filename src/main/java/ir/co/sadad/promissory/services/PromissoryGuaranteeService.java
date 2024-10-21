@@ -1,10 +1,9 @@
 package ir.co.sadad.promissory.services;
 
-import ir.co.sadad.promissory.dtos.AddGuaranteeRegisterReqDto;
-import ir.co.sadad.promissory.dtos.AddGuaranteeReqDto;
-import ir.co.sadad.promissory.dtos.GuaranteeApproveFinalResDto;
-import ir.co.sadad.promissory.dtos.IssueAndGuaranteeRegisterResDto;
+import ir.co.sadad.promissory.dtos.*;
 import ir.co.sadad.promissory.dtos.promissory.GuaranteeApproveReqDto;
+import ir.co.sadad.promissory.dtos.promissory.GuaranteeListReqDto;
+import ir.co.sadad.promissory.dtos.promissory.GuaranteeListResDto;
 import ir.co.sadad.promissory.dtos.promissory.GuaranteePreRegisterResDto;
 
 public interface PromissoryGuaranteeService {
@@ -15,5 +14,7 @@ public interface PromissoryGuaranteeService {
 
     GuaranteeApproveFinalResDto guaranteeApprove(String ssn, GuaranteeApproveReqDto approveReqDto);
 
-    void guaranteeCancel(String ssn, String promissoryId);
+    void guaranteeCancel(String ssn, GuaranteeDeleteOrRejectReqDto guaranteeCancelReqDto);
+
+    GuaranteeListResDto guaranteeList(GuaranteeListReqDto guaranteeListReqDto);
 }

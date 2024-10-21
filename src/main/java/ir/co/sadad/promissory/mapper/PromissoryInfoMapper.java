@@ -34,9 +34,11 @@ public interface PromissoryInfoMapper {
         resDto.setRequestStatus(item.getState());
         resDto.setLocalizedRequestStatus(RequestStatus.valueOf(item.getState()).getDescription());
 
-        List<String> localizedActionList = new ArrayList<>();
-        item.getActions().forEach(action -> localizedActionList.add(RequestAction.valueOf(action).getDescription()));
-        resDto.setLocalizedActions(localizedActionList);
+        resDto.setLocalizedActions(item.getActions().stream().
+                map(action -> RequestAction.valueOf(action).getDescription()).toList());
+//        List<String> localizedActionList = new ArrayList<>();
+//        item.getActions().forEach(action -> localizedActionList.add(RequestAction.valueOf(action).getDescription()));
+//        resDto.setLocalizedActions(localizedActionList);
 
         return resDto;
     }
@@ -92,19 +94,23 @@ public interface PromissoryInfoMapper {
     @IterableMapping(qualifiedByName = "MyPromissoryListMapper")
     List<MyPromissoryResDto> toMyPromissoryListResDto(List<MyPromissoryClientResDto.MyPromissoryList> list);
 
-    @Mapping(expression = "java(ir.co.sadad.promissory.services.utils.DataConverter.toPersianUtcDate(eachItem.getDueDate()))",
+    @Mapping(expression = "java(ir.co.sadad.promissory.services.utils.DataConverter.toPersianUtcDate(eachPromissory.getDueDate()))",
             target = "dueDate")
-    @Mapping(expression = "java(ir.co.sadad.promissory.services.utils.DataConverter.toPersianUtcDateTime(eachItem.getCreationDate(), eachItem.getCreationTime()))",
+    @Mapping(expression = "java(ir.co.sadad.promissory.services.utils.DataConverter.toPersianUtcDateTime(eachPromissory.getCreationDate(), eachPromissory.getCreationTime()))",
             target = "creationDate")
-    MyPromissoryResDto toMyPromissoryResDto(MyPromissoryClientResDto.MyPromissoryList eachItem);
+    MyPromissoryResDto toMyPromissoryResDto(MyPromissoryClientResDto.PromissoryObject eachPromissory);
 
     @Named("MyPromissoryListMapper")
     default MyPromissoryResDto myPromissoryMap(MyPromissoryClientResDto.MyPromissoryList eachItem) {
-        MyPromissoryResDto resDto = toMyPromissoryResDto(eachItem);
-        resDto.setRole(StakeholderRole.valueOf(eachItem.getRole()));
-        resDto.setState(eachItem.getState().getState());
-        resDto.setLocalizedState(eachItem.getState().getLocalizedState());
-        resDto.setLocalizedRequestStatus(eachItem.getRequestStatus().getDescription());
+        MyPromissoryResDto resDto = toMyPromissoryResDto(eachItem.getPromissory());
+        resDto.setRole(StakeholderRole.valueOf(eachItem.getPromissory().getRole()));
+        resDto.setState(eachItem.getPromissory().getState().getState());
+        resDto.setLocalizedState(eachItem.getPromissory().getState().getLocalizedState());
+        resDto.setLocalizedRequestStatus(eachItem.getPromissory().getRequestStatus().getDescription());
+
+        resDto.setAction(eachItem.getActionList().stream().map(RequestAction::valueOf).toList());
+        resDto.setLocalizedAction(eachItem.getActionList().stream().
+                map(action -> RequestAction.valueOf(action).getDescription()).toList());
 
         return resDto;
     }

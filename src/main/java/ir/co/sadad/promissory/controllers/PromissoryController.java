@@ -76,15 +76,14 @@ public class PromissoryController {
 
     }
 
-    @Operation(summary = "سرویس کارتابل سفته")
+    @Operation(summary = "سرویس کارتابل سفته (فقط آیتمهای مربوط به ضامن جهت تایید یا رد درخواست را نمایش میدهیم.)")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CartableResDto.class)))
     @GetMapping("/cartable")
     public ResponseEntity<List<CartableResDto>> cartable(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
                                                          @RequestHeader(SSN) String ssn,
                                                          @RequestParam(name = "page_number", defaultValue = "1") Integer page_number,
-                                                         @RequestParam(name = "page_size", defaultValue = "10") Integer page_size,
-                                                         @RequestParam(name = "request_status", required = false) String request_status) {
-        return new ResponseEntity<>(promissoryInfoService.cartable(ssn, page_number, page_size, request_status), HttpStatus.OK);
+                                                         @RequestParam(name = "page_size", defaultValue = "10") Integer page_size) {
+        return new ResponseEntity<>(promissoryInfoService.cartable(ssn, page_number, page_size), HttpStatus.OK);
 
     }
 
@@ -129,7 +128,7 @@ public class PromissoryController {
     }
 
 
-    //*************guarantor services***************//
+    //************* guarantor services ***************//
     @Operation(summary = "سرویس افزودن ضامن")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GuaranteePreRegisterResDto.class)))
     @PostMapping("/guarantor/add")
@@ -162,12 +161,21 @@ public class PromissoryController {
 
     @Operation(summary = "سرویس حذف یا عدم تایید ضامن")
     @ApiResponse(responseCode = "204")
-    @PostMapping("/guarantor/cancel/{requestId}")
+    @PostMapping("/guarantor/cancel")
     public ResponseEntity<HttpStatus> guaranteeCancel(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
                                                       @RequestHeader(SSN) String ssn,
-                                                      @PathVariable("requestId") String requestId) {
-        guaranteeService.guaranteeCancel(ssn, requestId);
+                                                      @Valid @RequestBody GuaranteeDeleteOrRejectReqDto guaranteeCancelReqDto) {
+        guaranteeService.guaranteeCancel(ssn, guaranteeCancelReqDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
+
+    @Operation(summary = "سرویس استعلام لیست ضامنین سفته")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = GuaranteeListResDto.class)))
+    @PostMapping("/guarantor/list")
+    public ResponseEntity<GuaranteeListResDto> guaranteeList(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                             @RequestBody GuaranteeListReqDto listReqDto) {
+        return new ResponseEntity<>(guaranteeService.guaranteeList(listReqDto), HttpStatus.OK);
 
     }
 }

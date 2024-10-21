@@ -17,6 +17,12 @@ public class MyPromissoryClientResDto {
 
     @Data
     public static class MyPromissoryList {
+        private PromissoryObject promissory;
+        private List<String> actionList;
+    }
+
+    @Data
+    public static class PromissoryObject {
         private String role;
         private String promissoryId;
         private String issuerType;
@@ -36,7 +42,7 @@ public class MyPromissoryClientResDto {
          * هستند برابر 0 ، در وضعیت تسویه تدریجی برابر با تفاضل مبلغ سفته و
          * مبالغ تسویه شده و به ازاي سایر وضعیت ها برابر با مبلغ تعهد است
          */
-        private String remainingAmount;
+        private BigDecimal remainingAmount;
         /**
          * تاریخ سررسید شمسی و در قالب yyyy/MM/dd
          */

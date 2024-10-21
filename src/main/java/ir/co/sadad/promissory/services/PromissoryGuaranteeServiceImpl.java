@@ -5,10 +5,7 @@ import ir.co.sadad.promissory.commons.enums.RequestStatus;
 import ir.co.sadad.promissory.commons.enums.RequestType;
 import ir.co.sadad.promissory.commons.enums.StakeholderRole;
 import ir.co.sadad.promissory.commons.exceptions.PromissoryException;
-import ir.co.sadad.promissory.dtos.AddGuaranteeRegisterReqDto;
-import ir.co.sadad.promissory.dtos.AddGuaranteeReqDto;
-import ir.co.sadad.promissory.dtos.GuaranteeApproveFinalResDto;
-import ir.co.sadad.promissory.dtos.IssueAndGuaranteeRegisterResDto;
+import ir.co.sadad.promissory.dtos.*;
 import ir.co.sadad.promissory.dtos.promissory.*;
 import ir.co.sadad.promissory.entities.Promissory;
 import ir.co.sadad.promissory.entities.PromissoryRequest;
@@ -79,7 +76,10 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
                     "guaranteePreregister", "EXCEPTION");
 
             if (preregisterRes != null && demandRequestId != null)
-                guaranteeCancel(ssn, demandRequestId);
+                guaranteeCancel(ssn, GuaranteeDeleteOrRejectReqDto.builder()
+                        .uid(demandRequestId)
+                        .cancelType(RequestStatus.CANCELED.toString())
+                        .build());
 
             throw e;
         }
@@ -183,20 +183,21 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
 
     @Override
     @SneakyThrows
-    public void guaranteeCancel(String ssn, String preGuaranteeRequestId) {
+    public void guaranteeCancel(String ssn, GuaranteeDeleteOrRejectReqDto guaranteeCancelReqDto) {
         PromissoryRequest savedRequest = null;
         try {
-            savedRequest = requestDaoService.getRequestBy(preGuaranteeRequestId);
-            List<PromissoryStakeholder> savedStakeholders = stakeholderDaoService.getStakeholders(savedRequest);
-            boolean isGuarantor = savedStakeholders.stream().anyMatch(stakeholder -> stakeholder.getNationalNumber().equals(ssn));
+            savedRequest = requestDaoService.getRequestBy(guaranteeCancelReqDto.getUid());
+//            List<PromissoryStakeholder> savedStakeholders = stakeholderDaoService.getStakeholders(savedRequest);
+//            boolean isGuarantor = savedStakeholders.stream().anyMatch(stakeholder -> stakeholder.getNationalNumber().equals(ssn));
 
             GuaranteeCancelReqDto req = new GuaranteeCancelReqDto();
             req.setPromissoryId(savedRequest.getPromissory().getPromissoryUid());
             req.setNationalNumber(ssn);
             req.setPersonType(DataConverter.personTypeConverter(ssn));
-            req.setRequestId(preGuaranteeRequestId);
+            req.setRequestId(guaranteeCancelReqDto.getUid());
             req.setDemandType(GUARANTEE_CANCEL_DEMAND_TYPE);
-            req.setDemandState(isGuarantor ? RequestStatus.REJECTED.toString() : RequestStatus.CANCELED.toString());
+            req.setDemandState(guaranteeCancelReqDto.getCancelType());
+//            req.setDemandState(isGuarantor ? RequestStatus.REJECTED.toString() : RequestStatus.CANCELED.toString());
 
             PromissoryClientResponseDto<Void> cancelRes = promissoryClient.guaranteePreRegisterCancel(
                     promissoryTokenService.getToken(),
@@ -206,7 +207,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
             logDaoService.saveLogs("", "",
                     savedRequest.getRequestUid(), DataConverter.convertResponseToJson(cancelRes), "guaranteeCancel", "SUCCESSFUL");
 
-            requestDaoService.updatePromissoryRequestStatus(savedRequest, isGuarantor ? RequestStatus.REJECTED : RequestStatus.CANCELED);
+            requestDaoService.updatePromissoryRequestStatus(savedRequest, RequestStatus.valueOf(guaranteeCancelReqDto.getCancelType()));//isGuarantor ? RequestStatus.REJECTED : RequestStatus.CANCELED);
 
         } catch (Exception e) {
             logDaoService.saveLogs(e.getClass().getName(), e.getMessage(),
@@ -214,6 +215,33 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
                     e instanceof PromissoryException ? ((PromissoryException) e).getJsonError() : null,
                     "guaranteeCancel", "EXCEPTION");
 
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public GuaranteeListResDto guaranteeList(GuaranteeListReqDto guaranteeListReqDto) {
+        try {
+            guaranteeListReqDto.setIssuerType(DataConverter.personTypeConverter(guaranteeListReqDto.getIssuerNN()));
+
+            GuaranteeListResDto listRes = promissoryClient.guaranteeList(
+                            promissoryTokenService.getToken(),
+                            TERMINAL_ID,
+                            guaranteeListReqDto)
+                    .getInfo();
+
+            if (!listRes.getApprovedGuarantors().isEmpty())
+                listRes.getApprovedGuarantors().forEach(guarantor ->
+                        guarantor.setCreationDate(DataConverter
+                                .toPersianUtcDateTime(guarantor.getCreationDate(), guarantor.getCreationTime()))
+                );
+
+            return listRes;
+        } catch (Exception e) {
+            logDaoService.saveLogs(e.getClass().getName(), e.getMessage(), null,
+                    e instanceof PromissoryException ? ((PromissoryException) e).getJsonError() : null,
+                    "guaranteeList", "EXCEPTION");
+            throw e;
         }
     }
 

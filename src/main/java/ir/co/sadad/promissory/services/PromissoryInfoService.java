@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface PromissoryInfoService {
 
-    List<CartableResDto> cartable(String ssn, int page_number, int page_size, String request_status);
+    List<CartableResDto> cartable(String ssn, int page_number, int page_size);
 
     InquiryResDto inquiry(InquiryReqDto inquiryReqDto);
 
