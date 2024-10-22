@@ -33,11 +33,9 @@ public class AddGuaranteeRegisterReqDto {
     @NotBlank(message = "V_ISSUER_NN_REQUIRE")
     private String ownerNN;
 
-    @Schema(title = "شناسه یکتای سفته")
-    @NotBlank(message = "V_PROMISSORY_ID_REQUIRE")
-    private String promissoryId;
-
     @Schema(title = "شناسه درخواست اولیه")
     @NotBlank(message = "V_REQUEST_ID_REQUIRE")
     private String uid;
+
+    private String promissoryId;
 }

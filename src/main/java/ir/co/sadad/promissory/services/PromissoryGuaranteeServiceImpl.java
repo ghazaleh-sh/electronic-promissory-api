@@ -94,7 +94,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
 
         PromissoryRequest savedGuarantorRequest = requestDaoService.getRequestBy(registerReqDto.getUid());
 
-        // to double-check if current user is the same as the target guarantor on given uid to register
+        // to double-check if current user(ssn) is the same as the target guarantor on given uid to register
         if (!ssn.equals(stakeholderDaoService.getStakeholderByRole(savedGuarantorRequest, StakeholderRole.GUARANTOR).getNationalNumber()))
             throw new PromissoryException("GUARANTOR_NOT_FOUND", HttpStatus.BAD_REQUEST);
 
@@ -102,6 +102,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
         String requestId = null;
         try {
             GuaranteeRegisterReqDto registerReq = mapper.toRegisterReqDto(ssn, registerReqDto);
+            registerReq.setPromissoryId(savedGuarantorRequest.getPromissory().getPromissoryUid());
 
             registerRes = promissoryClient.guaranteeRegister(promissoryTokenService.getToken(),
                     TERMINAL_ID, registerReq);
