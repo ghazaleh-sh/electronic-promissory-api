@@ -67,12 +67,6 @@ public class DataConverter {
         return PersianUTC.toUTCDateTime(persianDteTimeMerged, DateTimeFormatter.ofPattern("yyyyMMddHH:mm:ss")).toString();
     }
 
-    public static List<String> getLocalizedActions(List<RequestAction> actions) {
-        return actions.stream()
-                .map(RequestAction::getDescription)
-                .collect(Collectors.toList());
-    }
-
     public Map<String, Integer> getSubListInRange(int listSize, int page_number, int page_size) {
         int startIndex = (page_number - 1) * page_size;
         int endIndex = Math.min(startIndex + page_size, listSize);

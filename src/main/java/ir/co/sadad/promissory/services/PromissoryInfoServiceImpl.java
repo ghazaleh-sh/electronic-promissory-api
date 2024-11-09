@@ -1,6 +1,7 @@
 package ir.co.sadad.promissory.services;
 
-import ir.co.sadad.promissory.commons.enums.*;
+import ir.co.sadad.promissory.commons.enums.RequestType;
+import ir.co.sadad.promissory.commons.enums.StakeholderRole;
 import ir.co.sadad.promissory.commons.exceptions.PromissoryException;
 import ir.co.sadad.promissory.dtos.CartableResDto;
 import ir.co.sadad.promissory.dtos.FetchDocumentReqDto;
@@ -8,7 +9,6 @@ import ir.co.sadad.promissory.dtos.InquiryResDto;
 import ir.co.sadad.promissory.dtos.MyPromissoryResDto;
 import ir.co.sadad.promissory.dtos.promissory.*;
 import ir.co.sadad.promissory.entities.Promissory;
-import ir.co.sadad.promissory.entities.PromissoryRequest;
 import ir.co.sadad.promissory.mapper.PromissoryInfoMapper;
 import ir.co.sadad.promissory.providers.promissory.PromissoryClient;
 import ir.co.sadad.promissory.providers.sso.services.SSOTokenService;
@@ -23,10 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static ir.co.sadad.promissory.commons.Constants.TERMINAL_ID;
-import static ir.co.sadad.promissory.services.utils.DataConverter.getLocalizedActions;
 
 @Service
 @Slf4j
@@ -56,11 +54,11 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
                     .getItems();
 
             // to filter just Guarantee items for guarantors , others cannot see anything in their cartable
-            demandListRes = demandListRes.stream().filter(item -> {
-                        PromissoryRequest savedGuaranteeReq = requestDaoService.getRequestBy(item.getUid().toString());
-                        return RequestType.GUARANTEE.equals(savedGuaranteeReq.getRequestType()) &&
-                                ssn.equals(stakeholderDaoService.getStakeholderByRole(savedGuaranteeReq, StakeholderRole.GUARANTOR).getNationalNumber());
-                    })
+            demandListRes = demandListRes.stream().filter(item ->
+                            requestDaoService.getRequestByUidAndType(item.getUid().toString(), RequestType.GUARANTEE)
+                                    .filter(request -> ssn.equals(stakeholderDaoService.getStakeholderByRole(request, StakeholderRole.GUARANTOR).getNationalNumber()))
+                                    .isPresent()
+                    )
                     .toList();
 
         } catch (PromissoryException e) {
@@ -70,11 +68,6 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
 
             throw e;
         }
-
-//        if (request_status != null)
-//            demandListRes = demandListRes.stream()
-//                    .filter(item -> item.getState().equals(request_status))
-//                    .toList();
 
         int totalItems = demandListRes.size();
         int startIndex = (page_number - 1) * page_size;
@@ -202,17 +195,17 @@ public class PromissoryInfoServiceImpl implements PromissoryInfoService {
             if (savedPr != null) {
                 eachPromissory.setPromissoryName(savedPr.getPromissoryName());
 
-                List<PromissoryRequest> savedGuaranteeRequests = requestDaoService.getRequestByPromissoryUid(savedPr.getPromissoryUid(), RequestType.GUARANTEE);
-                eachPromissory.setGuarantorCount(savedGuaranteeRequests.size());
-
-                AtomicInteger waitingRequest = new AtomicInteger();
-                savedGuaranteeRequests.forEach(eachRequest -> {
-                    if (RequestStatus.WAITING_FOR_GUARANTOR_APPROVED.equals(eachRequest.getRequestStatus()))
-                        waitingRequest.getAndIncrement();
-                });
-
-                if (waitingRequest.get() > 1)
-                    eachPromissory.setRequestStatus(RequestStatus.WAITING_FOR_GUARANTORS_APPROVED);
+//                List<PromissoryRequest> savedGuaranteeRequests = requestDaoService.getRequestByPromissoryUid(savedPr.getPromissoryUid(), RequestType.GUARANTEE);
+//                eachPromissory.setGuarantorCount(savedGuaranteeRequests.size());
+//
+//                AtomicInteger waitingRequest = new AtomicInteger();
+//                savedGuaranteeRequests.forEach(eachRequest -> {
+//                    if (RequestStatus.WAITING_FOR_GUARANTOR_APPROVED.equals(eachRequest.getRequestStatus()))
+//                        waitingRequest.getAndIncrement();
+//                });
+//
+//                if (waitingRequest.get() > 1)
+//                    eachPromissory.setRequestStatus(RequestStatus.WAITING_FOR_GUARANTORS_APPROVED);
             }
 
 //            String state = eachPromissory.getState();

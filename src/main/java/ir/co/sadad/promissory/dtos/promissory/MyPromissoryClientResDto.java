@@ -60,7 +60,7 @@ public class MyPromissoryClientResDto {
         private String enAgentName;
         private Boolean isEndorsed;
         private Boolean isGuaranteed;
-        private RequestStatus requestStatus;
+//        private RequestStatus requestStatus;
         private Object extraData;
     }
 }

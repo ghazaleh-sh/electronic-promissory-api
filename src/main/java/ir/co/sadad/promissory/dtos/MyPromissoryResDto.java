@@ -34,11 +34,11 @@ public class MyPromissoryResDto {
     private String enAgentName;
     private Boolean isEndorsed;
     private Boolean isGuaranteed;
-    private RequestStatus requestStatus;
-    private String localizedRequestStatus;
+//    private RequestStatus requestStatus;
+//    private String localizedRequestStatus;
     private String PromissoryName;
     private List<RequestAction> action;
     private List<String> localizedAction;
 
-    private int guarantorCount;
+//    private int guarantorCount;
 }

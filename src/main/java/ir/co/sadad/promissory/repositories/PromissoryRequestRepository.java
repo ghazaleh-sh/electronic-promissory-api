@@ -15,4 +15,6 @@ public interface PromissoryRequestRepository extends JpaRepository<PromissoryReq
     Optional<PromissoryRequest> findByRequestUid(String requestUid);
 
     Optional<List<PromissoryRequest>> findByPromissory_PromissoryUidAndRequestType(String promissoryUid, RequestType requestType);
+
+    Optional<PromissoryRequest> findByRequestUidAndRequestType(String requestUid, RequestType requestType);
 }

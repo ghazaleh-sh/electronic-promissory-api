@@ -53,7 +53,7 @@ public interface PromissoryClient {
             @RequestHeader("terminalId") int terminalId,
             @RequestBody FetchSignedPdfReqDto fetchSignedPdfReqDto);
 
-    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.my-promissory}")
+    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.my-promissory-action}")
     PromissoryClientResponseDto<MyPromissoryClientResDto> myPromissory(
             @RequestHeader("Authorization") String bearerToken,
             @RequestHeader("terminalId") int terminalId,

@@ -1,7 +1,5 @@
 package ir.co.sadad.promissory.dtos;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import ir.co.sadad.promissory.commons.enums.CancelType;
 import ir.co.sadad.promissory.commons.enums.RequestAction;
 import lombok.Data;
 

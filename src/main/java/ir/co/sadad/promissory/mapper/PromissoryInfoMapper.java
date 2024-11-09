@@ -11,7 +11,6 @@ import ir.co.sadad.promissory.dtos.promissory.*;
 import ir.co.sadad.promissory.services.utils.DataConverter;
 import org.mapstruct.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
@@ -106,7 +105,7 @@ public interface PromissoryInfoMapper {
         resDto.setRole(StakeholderRole.valueOf(eachItem.getPromissory().getRole()));
         resDto.setState(eachItem.getPromissory().getState().getState());
         resDto.setLocalizedState(eachItem.getPromissory().getState().getLocalizedState());
-        resDto.setLocalizedRequestStatus(eachItem.getPromissory().getRequestStatus().getDescription());
+//        resDto.setLocalizedRequestStatus(eachItem.getPromissory().getRequestStatus().getDescription());
 
         resDto.setAction(eachItem.getActionList().stream().map(RequestAction::valueOf).toList());
         resDto.setLocalizedAction(eachItem.getActionList().stream().

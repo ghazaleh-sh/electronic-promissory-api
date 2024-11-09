@@ -34,7 +34,7 @@ public class CertificationController {
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LegalCustomerInfoDto.class)))
     @GetMapping("/legal-info/{identifier}")
     public ResponseEntity<LegalCustomerInfoDto> getLegalCustomerInfo(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
-                                                                     @PathVariable String identifier) {
+                                                                     @PathVariable("identifier") String identifier) {
         return new ResponseEntity<>(certificationService.getLegalCustomerInfo(authToken, identifier), HttpStatus.OK);
     }
 }

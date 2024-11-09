@@ -10,8 +10,10 @@ public enum RequestAction {
     APPROVE("تایید درخواست"),
     CANCEL("لغو درخواست"),
 
-    ADD_GUARANTEE("افزودن ضامن"),
-    SETTLEMENT("تسویه"),
+    ADD_GUARANTOR("افزودن ضامن"),
+//        SETTLEMENT("تسویه"),
+    COMPLETE_SETTLEMENT("تسویه کامل"),
+    GRADUAL_SETELMENT("تسویه تدریجی"),
     ENDORSEMENT("انتقال");
 
     private final String description;

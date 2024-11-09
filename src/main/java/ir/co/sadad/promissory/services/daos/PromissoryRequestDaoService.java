@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * DAO for managing requests information
@@ -28,6 +29,10 @@ public class PromissoryRequestDaoService {
 
     public PromissoryRequest getRequestBy(String requestUid) {
         return promissoryRequestRepository.findByRequestUid(requestUid).orElseThrow(() -> new PromissoryException("REQUEST_ID_IS_INVALID", HttpStatus.BAD_REQUEST));
+    }
+
+    public Optional<PromissoryRequest> getRequestByUidAndType(String requestUid, RequestType reqType) {
+        return promissoryRequestRepository.findByRequestUidAndRequestType(requestUid, reqType);
     }
 
     public List<PromissoryRequest> getRequestByPromissoryUid(String promissoryUid, RequestType reqType) {

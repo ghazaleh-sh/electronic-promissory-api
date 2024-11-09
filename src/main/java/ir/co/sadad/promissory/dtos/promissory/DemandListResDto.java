@@ -21,9 +21,9 @@ public class DemandListResDto {
         private Long uid;
         private String promissoryId;
         private String state;
-        private int requesterType;
+        private String requesterType;
         private String requesterValue;
-        private int seconderType;
+        private String seconderType;
         private String seconderValue;
         private BigDecimal promissoryAmount;
         private List<String> actions;
