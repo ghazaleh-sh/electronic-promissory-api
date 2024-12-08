@@ -15,26 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "${v1API}/user")
-@Tag(description = "سرویس های مربوط به گواهی کاربر و ایران ساین", name = "certification services")
 @RequiredArgsConstructor
 public class CertificationController {
 
-    private final CertificationService certificationService;
-
-
-    @Operation(summary = "سرویس دریافت گواهی کاربر")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserCertificationResDto.class)))
-    @GetMapping("/certification")
-    public ResponseEntity<UserCertificationResDto> userCertification(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken) {
-        return new ResponseEntity<>(certificationService.userCertifications(authToken, null), HttpStatus.OK);
-    }
-
-    @Operation(summary = "سرویس دریافت اطلاعات مشتری حقوقی")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LegalCustomerInfoDto.class)))
-    @GetMapping("/legal-info/{identifier}")
-    public ResponseEntity<LegalCustomerInfoDto> getLegalCustomerInfo(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
-                                                                     @PathVariable("identifier") String identifier) {
-        return new ResponseEntity<>(certificationService.getLegalCustomerInfo(authToken, identifier), HttpStatus.OK);
-    }
 }
