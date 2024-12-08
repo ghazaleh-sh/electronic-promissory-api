@@ -42,4 +42,9 @@ class DataConverterTest {
         assertEquals("2024-09-22T14:32:59.000Z", DataConverter.toPersianUtcDateTime(persianDate, persianTime));
 
     }
+
+    @Test
+    void currentUTC(){
+        assertEquals("2024-12-07T08:39:57.828Z", DataConverter.currentUTC());
+    }
 }

@@ -84,7 +84,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
     }
 
     @Override
-    public IssueAndGuaranteeRegisterResDto guaranteeRegister(String authToken, String ssn, AddGuaranteeRegisterReqDto registerReqDto) {
+    public IssueAndGuaranteeAndSettlementRegisterResDto guaranteeRegister(String authToken, String ssn, AddGuaranteeRegisterReqDto registerReqDto) {
 //        PromissoryRequest savedRequestForCurrentUser = requestDaoService.getRequestByPromissoryUid(registerReqDto.getPromissoryId(), RequestType.GUARANTEE)
 //                .stream()
 //                .filter(request -> RequestStatus.WAITING_FOR_GUARANTOR_APPROVED.equals(request.getRequestStatus()))
@@ -98,7 +98,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
         if (!ssn.equals(stakeholderDaoService.getStakeholderByRole(savedGuarantorRequest, StakeholderRole.GUARANTOR).getNationalNumber()))
             throw new PromissoryException("GUARANTOR_NOT_FOUND", HttpStatus.BAD_REQUEST);
 
-        PromissoryClientResponseDto<GuaranteeRegisterResDto> registerRes = null;
+        PromissoryClientResponseDto<GuaranteeAndSettlementRegisterResDto> registerRes = null;
         String requestId = null;
         try {
             GuaranteeRegisterReqDto registerReq = mapper.toRegisterReqDto(ssn, registerReqDto);
@@ -113,7 +113,7 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
 
             stakeholderDaoService.updateStakeholderForGuarantor(registerReq, savedGuarantorRequest);
 
-            IssueAndGuaranteeRegisterResDto res = certificationService.certificationFlowToRegister(authToken, requestId, registerRes.getInfo().getUnSignedPdf());
+            IssueAndGuaranteeAndSettlementRegisterResDto res = certificationService.certificationFlowToRegister(authToken, requestId, registerRes.getInfo().getUnSignedPdf());
 
             requestDaoService.updatePromissoryRequestStatusAndUidForGuaranteeRegister(savedGuarantorRequest,
                     RequestStatus.REGISTERED_WAITING_FOR_GUARANTOR_APPROVED,
@@ -135,12 +135,12 @@ public class PromissoryGuaranteeServiceImpl implements PromissoryGuaranteeServic
     }
 
     @Override
-    public GuaranteeApproveFinalResDto guaranteeApprove(String ssn, GuaranteeApproveReqDto approveReqDto) {
+    public GuaranteeApproveFinalResDto guaranteeApprove(String ssn, GuaranteeAndSettlementApproveReqDto approveReqDto) {
         PromissoryRequest savedRequest = requestDaoService.getRequestBy(approveReqDto.getRequestId());
         PromissoryStakeholder guarantor = stakeholderDaoService.getStakeholderByRole(savedRequest, StakeholderRole.GUARANTOR);
         Promissory savedPromissory = savedRequest.getPromissory();
 
-        PromissoryClientResponseDto<GuaranteeApproveResDto> approveRes = null;
+        PromissoryClientResponseDto<GuaranteeAndSettlementApproveResDto> approveRes = null;
         try {
             approveRes = promissoryClient.guaranteeApprove(promissoryTokenService.getToken(),
                     TERMINAL_ID, approveReqDto);

@@ -66,7 +66,7 @@ public interface PromissoryClient {
             @RequestBody GuaranteePreRegisterReqDto preRegisterReqDto);
 
     @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.guarantee-register}")
-    PromissoryClientResponseDto<GuaranteeRegisterResDto> guaranteeRegister(
+    PromissoryClientResponseDto<GuaranteeAndSettlementRegisterResDto> guaranteeRegister(
             @RequestHeader("Authorization") String bearerToken,
             @RequestHeader("terminalId") int terminalId,
             @RequestBody GuaranteeRegisterReqDto registerReqDto);
@@ -78,14 +78,38 @@ public interface PromissoryClient {
             @RequestBody GuaranteeCancelReqDto guaranteeCancelReqDto);
 
     @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.guarantee-approve}")
-    PromissoryClientResponseDto<GuaranteeApproveResDto> guaranteeApprove(
+    PromissoryClientResponseDto<GuaranteeAndSettlementApproveResDto> guaranteeApprove(
             @RequestHeader("Authorization") String bearerToken,
             @RequestHeader("terminalId") int terminalId,
-            @RequestBody GuaranteeApproveReqDto approveReqDto);
+            @RequestBody GuaranteeAndSettlementApproveReqDto approveReqDto);
 
     @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.guarantee-list}")
     PromissoryClientResponseDto<GuaranteeListResDto> guaranteeList(
             @RequestHeader("Authorization") String bearerToken,
             @RequestHeader("terminalId") int terminalId,
             @RequestBody GuaranteeListReqDto listReqDto);
+
+    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.gradual-settlement-register}")
+    PromissoryClientResponseDto<GuaranteeAndSettlementRegisterResDto> gradualSettlementRegister(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestHeader("terminalId") int terminalId,
+            @RequestBody GradualSettlementRegisterReqDto settlementRegisterReqDto);
+
+    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.gradual-settlement-approve}")
+    PromissoryClientResponseDto<GuaranteeAndSettlementApproveResDto> gradualSettlementApprove(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestHeader("terminalId") int terminalId,
+            @RequestBody GuaranteeAndSettlementApproveReqDto settlementApproveReqDto);
+
+    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.complete-settlement-register}")
+    PromissoryClientResponseDto<GuaranteeAndSettlementRegisterResDto> completeSettlementRegister(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestHeader("terminalId") int terminalId,
+            @RequestBody GradualSettlementRegisterReqDto settlementRegisterReqDto);
+
+    @RequestMapping(method = RequestMethod.POST, value = "${client.promissory.complete-settlement-approve}")
+    PromissoryClientResponseDto<GuaranteeAndSettlementApproveResDto> completeSettlementApprove(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestHeader("terminalId") int terminalId,
+            @RequestBody GuaranteeAndSettlementApproveReqDto settlementApproveReqDto);
 }

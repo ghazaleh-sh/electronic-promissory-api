@@ -2,9 +2,7 @@ package ir.co.sadad.promissory.mapper;
 
 import ir.co.sadad.promissory.dtos.*;
 import ir.co.sadad.promissory.dtos.baambase.CertificationResBodyDto;
-import ir.co.sadad.promissory.dtos.promissory.GuaranteePreRegisterReqDto;
-import ir.co.sadad.promissory.dtos.promissory.GuaranteeRegisterReqDto;
-import ir.co.sadad.promissory.dtos.promissory.IssueRegisterReqDto;
+import ir.co.sadad.promissory.dtos.promissory.*;
 import ir.co.sadad.promissory.entities.Promissory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -54,4 +52,8 @@ public interface PromissoryMapper {
     @Mapping(source = "ssn", target = "guaranteeNN")
     @Mapping(source = "registerReqDto.ownerNN", target = "nationalNumber")
     GuaranteeRegisterReqDto toRegisterReqDto(String ssn, AddGuaranteeRegisterReqDto registerReqDto);
+
+    @Mapping(expression = "java(ir.co.sadad.promissory.services.utils.DataConverter.personTypeConverter(registerReqDto.getOwnerNN()))",
+            target = "ownerType")
+    GradualSettlementRegisterReqDto toRegisterSettlementReqDto(SettlementRegisterReqDto registerReqDto);
 }

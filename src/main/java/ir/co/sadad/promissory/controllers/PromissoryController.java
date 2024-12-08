@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.co.sadad.promissory.commons.enums.StakeholderRole;
 import ir.co.sadad.promissory.dtos.*;
 import ir.co.sadad.promissory.dtos.promissory.*;
-import ir.co.sadad.promissory.services.PromissoryBaseService;
-import ir.co.sadad.promissory.services.PromissoryGuaranteeService;
-import ir.co.sadad.promissory.services.PromissoryInfoService;
-import ir.co.sadad.promissory.services.PromissoryService;
+import ir.co.sadad.promissory.services.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +31,7 @@ public class PromissoryController {
     private final PromissoryInfoService promissoryInfoService;
     private final PromissoryGuaranteeService guaranteeService;
     private final PromissoryBaseService baseService;
+    private final PromissorySettlementService settlementService;
 
     @Operation(summary = "سرویس استعلام کارمزد")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = FeeInquiryResDto.class)))
@@ -45,11 +43,11 @@ public class PromissoryController {
     }
 
     @Operation(summary = "سرویس صدور اولیه")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IssueAndGuaranteeRegisterResDto.class)))
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IssueAndGuaranteeAndSettlementRegisterResDto.class)))
     @PostMapping("/register")
-    public ResponseEntity<IssueAndGuaranteeRegisterResDto> publishRegister(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
-                                                                           @RequestHeader(SSN) String ssn,
-                                                                           @Valid @RequestBody IssueFirstReqDto firstReqDto) {
+    public ResponseEntity<IssueAndGuaranteeAndSettlementRegisterResDto> publishRegister(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                                                        @RequestHeader(SSN) String ssn,
+                                                                                        @Valid @RequestBody IssueFirstReqDto firstReqDto) {
         return new ResponseEntity<>(promissoryService.issueRegister(authToken, ssn, firstReqDto), HttpStatus.OK);
 
     }
@@ -140,11 +138,11 @@ public class PromissoryController {
     }
 
     @Operation(summary = "سرویس تایید ضمانت اولیه")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IssueAndGuaranteeRegisterResDto.class)))
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IssueAndGuaranteeAndSettlementRegisterResDto.class)))
     @PostMapping("/guarantor/register")
-    public ResponseEntity<IssueAndGuaranteeRegisterResDto> guaranteeRegister(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
-                                                                             @RequestHeader(SSN) String ssn,
-                                                                             @Valid @RequestBody AddGuaranteeRegisterReqDto registerReqDto) {
+    public ResponseEntity<IssueAndGuaranteeAndSettlementRegisterResDto> guaranteeRegister(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                                                          @RequestHeader(SSN) String ssn,
+                                                                                          @Valid @RequestBody AddGuaranteeRegisterReqDto registerReqDto) {
         return new ResponseEntity<>(guaranteeService.guaranteeRegister(authToken, ssn, registerReqDto), HttpStatus.OK);
 
     }
@@ -154,7 +152,7 @@ public class PromissoryController {
     @PostMapping("/guarantor/approve")
     public ResponseEntity<GuaranteeApproveFinalResDto> guaranteeApprove(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
                                                                         @RequestHeader(SSN) String ssn,
-                                                                        @Valid @RequestBody GuaranteeApproveReqDto approveReqDto) {
+                                                                        @Valid @RequestBody GuaranteeAndSettlementApproveReqDto approveReqDto) {
         return new ResponseEntity<>(guaranteeService.guaranteeApprove(ssn, approveReqDto), HttpStatus.OK);
 
     }
@@ -176,6 +174,47 @@ public class PromissoryController {
     public ResponseEntity<GuaranteeListResDto> guaranteeList(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
                                                              @RequestBody GuaranteeListReqDto listReqDto) {
         return new ResponseEntity<>(guaranteeService.guaranteeList(listReqDto), HttpStatus.OK);
+
+    }
+
+
+    //************* settlement services ***************//
+    @Operation(summary = "سرویس درخواست تسویه تدریجی")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IssueAndGuaranteeAndSettlementRegisterResDto.class)))
+    @PostMapping("/gradual-register")
+    public ResponseEntity<IssueAndGuaranteeAndSettlementRegisterResDto> gradualRegister(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                                                        @RequestHeader(SSN) String ssn,
+                                                                                        @Valid @RequestBody SettlementRegisterReqDto registerReqDto) {
+        return new ResponseEntity<>(settlementService.gradualSettlementRegister(authToken, ssn, registerReqDto), HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "سرویس نهایی تسویه تدریجی")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = SettlementApproveResDto.class)))
+    @PostMapping("/gradual-approve")
+    public ResponseEntity<SettlementApproveResDto> gradualApprove(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                                  @RequestHeader(SSN) String ssn,
+                                                                  @Valid @RequestBody SettlementApproveReqDto settlementApproveReqDto) {
+        return new ResponseEntity<>(settlementService.gradualSettlementApprove(authToken, settlementApproveReqDto), HttpStatus.OK);
+
+    }
+
+    @Operation(summary = "سرویس درخواست تسویه کامل")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IssueAndGuaranteeAndSettlementRegisterResDto.class)))
+    @PostMapping("/complete-register")
+    public ResponseEntity<IssueAndGuaranteeAndSettlementRegisterResDto> completeRegister(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                                                         @RequestHeader(SSN) String ssn,
+                                                                                         @Valid @RequestBody SettlementRegisterReqDto registerReqDto) {
+        return new ResponseEntity<>(settlementService.completeSettlementRegister(authToken, ssn, registerReqDto), HttpStatus.OK);
+    }
+
+    @Operation(summary = "سرویس نهایی تسویه کامل")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = SettlementApproveResDto.class)))
+    @PostMapping("/complete-approve")
+    public ResponseEntity<SettlementApproveResDto> completeApprove(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
+                                                                   @RequestHeader(SSN) String ssn,
+                                                                   @Valid @RequestBody SettlementApproveReqDto settlementApproveReqDto) {
+        return new ResponseEntity<>(settlementService.completeSettlementApprove(authToken, settlementApproveReqDto), HttpStatus.OK);
 
     }
 }

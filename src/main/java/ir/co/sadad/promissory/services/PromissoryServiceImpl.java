@@ -58,7 +58,7 @@ public class PromissoryServiceImpl implements PromissoryService {
     }
 
     @Override
-    public IssueAndGuaranteeRegisterResDto issueRegister(String authToken, String issuerSSN, IssueFirstReqDto issueReqDto) {
+    public IssueAndGuaranteeAndSettlementRegisterResDto issueRegister(String authToken, String issuerSSN, IssueFirstReqDto issueReqDto) {
         issueReqDto.setIssuerNN(issuerSSN);
         PromissoryClientResponseDto<IssueRegisterResDto> issueRes = null;
         String requestId = null;
@@ -72,7 +72,7 @@ public class PromissoryServiceImpl implements PromissoryService {
                     requestId, DataConverter.convertResponseToJson(issueRes), "issueRegister", "SUCCESSFUL");
 
 
-            IssueAndGuaranteeRegisterResDto res = certificationService.certificationFlowToRegister(authToken, requestId, issueRes.getInfo().getUnSignedPdf());
+            IssueAndGuaranteeAndSettlementRegisterResDto res = certificationService.certificationFlowToRegister(authToken, requestId, issueRes.getInfo().getUnSignedPdf());
 
             Promissory savedPromissory = promissoryDaoService.createPromissory(issueReqDto, issueRes.getInfo());
             stakeholderDaoService.createStakeholdersForIssue(issueReqDto,

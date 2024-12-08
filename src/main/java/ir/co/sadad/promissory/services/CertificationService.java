@@ -1,6 +1,6 @@
 package ir.co.sadad.promissory.services;
 
-import ir.co.sadad.promissory.dtos.IssueAndGuaranteeRegisterResDto;
+import ir.co.sadad.promissory.dtos.IssueAndGuaranteeAndSettlementRegisterResDto;
 import ir.co.sadad.promissory.dtos.UserCertificationResDto;
 import ir.co.sadad.promissory.dtos.baambase.CertificateEncodedResDto;
 import ir.co.sadad.promissory.dtos.icms.LegalCustomerInfoDto;
@@ -42,7 +42,7 @@ public interface CertificationService {
      * @param unSignedPdf
      * @return
      */
-    IssueAndGuaranteeRegisterResDto certificationFlowToRegister(String authToken, String requestId, String unSignedPdf);
+    IssueAndGuaranteeAndSettlementRegisterResDto certificationFlowToRegister(String authToken, String requestId, String unSignedPdf);
 
     /**
      * cif service to get legal customer information

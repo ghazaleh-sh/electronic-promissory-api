@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.co.sadad.hambaam.persiandatetime.PersianDate;
 import ir.co.sadad.hambaam.persiandatetime.PersianDateTime;
 import ir.co.sadad.hambaam.persiandatetime.PersianUTC;
-import ir.co.sadad.promissory.commons.enums.RequestAction;
 import ir.co.sadad.promissory.commons.exceptions.PromissoryException;
 import ir.co.sadad.promissory.dtos.ThirdPartyServicesResponse;
 import org.springframework.http.HttpStatus;
@@ -14,9 +13,7 @@ import org.springframework.http.HttpStatusCode;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DataConverter {
 
@@ -49,6 +46,10 @@ public class DataConverter {
         } catch (JsonProcessingException e) {
             return null;
         }
+    }
+
+    public static String currentUTC() {
+        return PersianUTC.currentUTC().toString();
     }
 
     public static String toPersianDate(String utcDate) {

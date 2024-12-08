@@ -3,7 +3,7 @@ package ir.co.sadad.promissory.dtos;
 import lombok.Data;
 
 @Data
-public class IssueAndGuaranteeRegisterResDto {
+public class IssueAndGuaranteeAndSettlementRegisterResDto {
     private String requestId;
     private String certificateKeyId;
     private String device;

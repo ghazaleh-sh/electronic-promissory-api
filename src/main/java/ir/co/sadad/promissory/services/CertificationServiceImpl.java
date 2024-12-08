@@ -1,7 +1,7 @@
 package ir.co.sadad.promissory.services;
 
 import ir.co.sadad.promissory.commons.exceptions.PromissoryException;
-import ir.co.sadad.promissory.dtos.IssueAndGuaranteeRegisterResDto;
+import ir.co.sadad.promissory.dtos.IssueAndGuaranteeAndSettlementRegisterResDto;
 import ir.co.sadad.promissory.dtos.UserCertificationResDto;
 import ir.co.sadad.promissory.dtos.baambase.BaamBaseResponseDto;
 import ir.co.sadad.promissory.dtos.baambase.CertificateEncodedResDto;
@@ -102,7 +102,7 @@ public class CertificationServiceImpl implements CertificationService {
 
     }
 
-    public IssueAndGuaranteeRegisterResDto certificationFlowToRegister(String authToken, String requestId, String unSignedPdf) {
+    public IssueAndGuaranteeAndSettlementRegisterResDto certificationFlowToRegister(String authToken, String requestId, String unSignedPdf) {
 
         UserCertificationResDto userCertification = userCertifications(authToken, requestId);
 
@@ -124,8 +124,8 @@ public class CertificationServiceImpl implements CertificationService {
         return res;
     }
 
-    private static IssueAndGuaranteeRegisterResDto getIssueAndGuaranteeRegisterResDto(String requestId, UserCertificationResDto userCertification, String dataToBeSign) {
-        IssueAndGuaranteeRegisterResDto response = new IssueAndGuaranteeRegisterResDto();
+    private static IssueAndGuaranteeAndSettlementRegisterResDto getIssueAndGuaranteeRegisterResDto(String requestId, UserCertificationResDto userCertification, String dataToBeSign) {
+        IssueAndGuaranteeAndSettlementRegisterResDto response = new IssueAndGuaranteeAndSettlementRegisterResDto();
         response.setRequestId(requestId);
         response.setCertificateKeyId(userCertification.getCertificateKeyId());
         response.setDevice(userCertification.getDevice());
